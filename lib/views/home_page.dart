@@ -524,8 +524,12 @@ class _HomePageState extends State<HomePage> {
               onStepTapped: (int index) {
                 _onStepTapped(index);
               },*/
+            controlsBuilder: (BuildContext context, {VoidCallback? onStepContinue, VoidCallback? onStepCancel}) {
+              return Container();
+            },
             steps: <Step>[
               Step(
+                isActive: true,
                 title: Text("Pièces à fournir dans l'agence commerciale dont dépend votre quartier.", style: TextStyle(
                   color: Colors.black,
                   fontSize: 15,
@@ -575,6 +579,7 @@ class _HomePageState extends State<HomePage> {
                 )
               ),
               Step(
+                isActive: true,
                   title: Text("Le technicien devra veiller aux prescriptions", style: TextStyle(
                       color: Colors.black,
                       fontSize: 15,
