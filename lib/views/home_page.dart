@@ -14,8 +14,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final double _DrawerRadiusCorner = 30;
-  int clickedIndex = 0, _index = 0;
-  String? avatar, title;
+  int clickedIndex = 0, currentStep = 0;
+  String? avatar, title, abType;
   Random random = new Random();
 
   @override
@@ -41,7 +41,7 @@ class _HomePageState extends State<HomePage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            clickedIndex == 1? abonnementOptions.elementAt(_selectedIndex):
+            clickedIndex == 1? abonnementOptions().elementAt(_selectedIndex):
             clickedIndex == 2? facturationOptions.elementAt(_selectedIndex):
             clickedIndex == 3? fraudeOptions.elementAt(_selectedIndex):
             clickedIndex == 4? contactOptions.elementAt(_selectedIndex):
@@ -504,130 +504,416 @@ class _HomePageState extends State<HomePage> {
     ),
   ];
 
-  List<Widget> abonnementOptions = <Widget>[
-    Padding(
-      padding: EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Text("Vous êtes propriétaire", style: TextStyle(
-              color: Colors.indigo,
-              fontSize: 16,
-              fontWeight: FontWeight.bold
-          ),),
-          SizedBox(height: 20,),
-          Stepper(
-              /*currentStep: _index,
-              onStepCancel: _onStepCancel,
-              onStepContinue: _onStepContinue,
-              onStepTapped: (int index) {
-                _onStepTapped(index);
-              },*/
-            controlsBuilder: (BuildContext context, {VoidCallback? onStepContinue, VoidCallback? onStepCancel}) {
-              return Container();
-            },
-            steps: <Step>[
-              Step(
-                isActive: true,
-                title: Text("Pièces à fournir dans l'agence commerciale dont dépend votre quartier.", style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold
-                ),),
-                content: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 10,),
-                    Text("- Photocopie de votre carte nationale d'identité (CNI) ou de votre passeport", style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500
-                    ),),
-                    SizedBox(height: 10,),
-                    Text("- Titre de propriété ou tout autre document y tenant lieu", style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500
-                    ),),
-                    SizedBox(height: 10,),
-                    Text("- Une demande de branchement au chef d'agence", style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500
-                    ),),
-                    SizedBox(height: 10,),
-                    Text("- Le plan de localisation", style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500
-                    ),),
-                    SizedBox(height: 10,),
-                    Text("- Le numéro identifiant unique", style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500
-                    ),),
-                    SizedBox(height: 10,),
-                    Text("- L'accord d'engagement légalisé dans un commissariat", style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500
-                    ),),
-                  ],
+  List<Widget> abonnementOptions() {
+    return <Widget>[
+      Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            DropdownButtonHideUnderline(
+                child: new Theme(
+                  data: Theme.of(context).copyWith(
+                    canvasColor: Colors.white
+                  ),
+                  child: DropdownButton<String>(
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold
+                    ),
+                    icon: Icon(Icons.arrow_drop_down_sharp, color: Colors.blue),
+                    isDense: true,
+                    elevation: 1,
+                    isExpanded: true,
+                    onChanged: (aType){
+                      setState(() {
+                        abType = aType;
+                      });
+                    },
+                    value: this.abType,
+                    hint: Padding(
+                      padding: EdgeInsets.only(left: 0),
+                      child: Text('Choisir un type d\'abonnement',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold
+                        ),),
+                    ),
+                    items: abonnementTypes.map((String at){
+                      return DropdownMenuItem<String>(
+                        value: at,
+                        child: Padding(
+                          padding: EdgeInsets.only(left: 0),
+                          child: Text(at, style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.indigo
+                          ),),
+                        ),
+                      );
+                    }).toList(),
+                  ),
                 )
-              ),
-              Step(
-                isActive: true,
-                  title: Text("Le technicien devra veiller aux prescriptions", style: TextStyle(
+            ),
+            SizedBox(height: 20,),
+            abonnementTypes.indexOf(abType!) == 0?
+            Stepper(
+              currentStep: currentStep,
+                onStepTapped: (index) => _onStepTapped(index),
+                onStepCancel: () => _onStepCancel(),
+                onStepContinue: () => _onStepContinue(),
+                controlsBuilder: (BuildContext context,
+                    {VoidCallback? onStepContinue, VoidCallback? onStepCancel}) {
+                  return Row(
+                    children: <Widget>[
+                      currentStep == 3?Container():
+                      ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.white,
+                          ),
+                          onPressed: _onStepContinue,
+                          child: const Text("SUIVANT", style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.indigoAccent
+                          ),)
+                      ),
+                      Spacer(),
+                      currentStep == 0?Container():
+                      ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.white,
+                          ),
+                          onPressed: _onStepCancel,
+                          child: const Text("PRECEDENT", style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.indigoAccent
+                          ),)
+                      ),
+                    ],
+                  );
+                },
+                steps: <Step>[
+                  Step(
+                      isActive: currentStep == 0? true:false,
+                      title: Text("Pièces à fournir dans l'agence commerciale dont dépend votre quartier.", style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold
+                      ),),
+                      content: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 10,),
+                          Text("- Photocopie de votre carte nationale d'identité (CNI) ou de votre passeport", style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500
+                          ),),
+                          SizedBox(height: 10,),
+                          Text("- Titre de propriété ou tout autre document y tenant lieu", style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500
+                          ),),
+                          SizedBox(height: 10,),
+                          Text("- Une demande de branchement au chef d'agence", style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500
+                          ),),
+                          SizedBox(height: 10,),
+                          Text("- Le plan de localisation", style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500
+                          ),),
+                          SizedBox(height: 10,),
+                          Text("- Le numéro identifiant unique", style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500
+                          ),),
+                          SizedBox(height: 10,),
+                          Text("- L'accord d'engagement légalisé dans un commissariat", style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500
+                          ),),
+                        ],
+                      )
+                  ),
+                  Step(
+                      isActive: currentStep == 1? true:false,
+                      title: Text("Le technicien devra veiller aux prescriptions", style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold
+                      ),),
+                      content: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 10,),
+                          Text("1) Une canalisation existe dans la rue qui dessert votre concession ou votre parcelle et cette conduite n'est pas privée", style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500
+                          ),),
+                          SizedBox(height: 10,),
+                          Text("2) Votre compteur sera posé dans la concession ou le plus près possible de la limite de la propriété", style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500
+                          ),),
+                          SizedBox(height: 10,),
+                          Text("3) La longueur de votre baranchement ne pourra pas excéder 50 mètres linéaires", style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500
+                          ),),
+                          SizedBox(height: 10,),
+                          Text("4) Vous devrez produire une autorisation écrite et légalisée de traverser les ceoncessions d'autrui. Dans ce cas, le technicien vous remettra un formulaire qui, dûment rempli et légalisé, sera joint à votre devis avant sa signature par le Chef d'Agence", style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500
+                          ),),
+                        ],
+                      )
+                  ),
+                  Step(
+                      isActive: currentStep == 2? true:false,
+                      title: Text("Votre devis de branchement/abonnement sera constitué de", style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold
+                      ),),
+                      content: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 10,),
+                          Text("- Frais de branchement : les frais de fourniture et pose en vigueur répertorié dans le bordereau des prix", style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500
+                          ),),
+                          SizedBox(height: 10,),
+                          Text("- Frais d'abonnement : les avances sur consommation et les frais de pose compteur", style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500
+                          ),),
+                          SizedBox(height: 10,),
+                          Text("- Taxe sur la Valeur Ajoutée (TVA): 19,25%", style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500
+                          ),),
+                        ],
+                      )
+                  ),
+                  Step(
+                    isActive: currentStep == 3? true:false,
+                    content: Container(), title: Text("Fin", style: TextStyle(
                       color: Colors.black,
                       fontSize: 15,
                       fontWeight: FontWeight.bold
-                  ),),
-                content: Column(
-                  children: [
-                    SizedBox(height: 10,),
-                    Text("1) Une canalisation existe dans la rue qui dessert votre concession ou votre parcelle et cette conduite n'est pas privée", style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500
-                    ),),
-                    SizedBox(height: 10,),
-                    Text("2) Votre compteur sera posé dans la concession ou le plus près possible de la limite de la propriété", style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500
-                    ),),
-                    SizedBox(height: 10,),
-                    Text("3) La longueur de votre baranchement ne pourra pas excéder 50 mètres linéaires", style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500
-                    ),),
-                    SizedBox(height: 10,),
-                    Text("4) Vous devrez produire une autorisation écrite et légalisée de traverser les ceoncessions d'autrui. Dans ce cas, le technicien vous remettra un formulaire qui, dûment rempli et légalisé, sera joint à votre devis avant sa signature par le Chef d'Agence", style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500
-                    ),),
-                  ],
-                )
-              )
-            ]
-          )
-        ],
+                  ),),)
+                ]
+            ):
+            abonnementTypes.indexOf(abType!) == 1?
+            Stepper(
+                currentStep: currentStep,
+                onStepTapped: (index) => _onStepTapped(index),
+                onStepCancel: () => _onStepCancel(),
+                onStepContinue: () => _onStepContinue(),
+                controlsBuilder: (BuildContext context,
+                    {VoidCallback? onStepContinue, VoidCallback? onStepCancel}) {
+                  return Row(
+                    children: <Widget>[
+                      currentStep == 3?Container():
+                      ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.white,
+                          ),
+                          onPressed: _onStepContinue,
+                          child: const Text("SUIVANT", style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.indigoAccent
+                          ),)
+                      ),
+                      Spacer(),
+                      currentStep == 0?Container():
+                      ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.white,
+                          ),
+                          onPressed: _onStepCancel,
+                          child: const Text("PRECEDENT", style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.indigoAccent
+                          ),)
+                      ),
+                    ],
+                  );
+                },
+                steps: <Step>[
+                  Step(
+                      isActive: currentStep == 0? true:false,
+                      title: Text("Pièces à fournir dans l'agence commerciale dont dépend votre quartier.", style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold
+                      ),),
+                      content: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 10,),
+                          Text("- Photocopie de votre carte nationale d'identité (CNI) ou de votre passeport", style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500
+                          ),),
+                          SizedBox(height: 10,),
+                          Text("- Titre de propriété ou tout autre document y tenant lieu", style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500
+                          ),),
+                          SizedBox(height: 10,),
+                          Text("- Contrat de bail et une autorisation écrite et légalisée du propriétaire de la concession", style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500
+                          ),),
+                          SizedBox(height: 10,),
+                          Text("- Une demande de branchement au chef d'agence", style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500
+                          ),),
+                          SizedBox(height: 10,),
+                          Text("- Le plan de localisation", style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500
+                          ),),
+                          SizedBox(height: 10,),
+                          Text("- Le numéro identifiant unique", style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500
+                          ),),
+                          SizedBox(height: 10,),
+                          Text("- L'accord d'engagement légalisé dans un commissariat", style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500
+                          ),),
+                        ],
+                      )
+                  ),
+                  Step(
+                      isActive: currentStep == 1? true:false,
+                      title: Text("Le technicien devra veiller aux prescriptions", style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold
+                      ),),
+                      content: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 10,),
+                          Text("1) Une canalisation existe dans la rue qui dessert votre concession ou votre parcelle et cette conduite n'est pas privée", style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500
+                          ),),
+                          SizedBox(height: 10,),
+                          Text("2) Votre compteur sera posé dans la concession ou le plus près possible de la limite de la propriété", style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500
+                          ),),
+                          SizedBox(height: 10,),
+                          Text("3) La longueur de votre baranchement ne pourra pas excéder 50 mètres linéaires", style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500
+                          ),),
+                          SizedBox(height: 10,),
+                          Text("4) Vous devrez produire une autorisation écrite et légalisée de traverser les ceoncessions d'autrui. Dans ce cas, le technicien vous remettra un formulaire qui, dûment rempli et légalisé, sera joint à votre devis avant sa signature par le Chef d'Agence", style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500
+                          ),),
+                        ],
+                      )
+                  ),
+                  Step(
+                      isActive: currentStep == 2? true:false,
+                      title: Text("Votre devis de branchement/abonnement sera constitué de", style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold
+                      ),),
+                      content: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 10,),
+                          Text("- Frais de branchement : les frais de fourniture et pose en vigueur répertorié dans le bordereau des prix", style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500
+                          ),),
+                          SizedBox(height: 10,),
+                          Text("- Frais d'abonnement : les avances sur consommation et les frais de pose compteur", style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500
+                          ),),
+                          SizedBox(height: 10,),
+                          Text("- Taxe sur la Valeur Ajoutée (TVA): 19,25%", style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500
+                          ),),
+                        ],
+                      )
+                  ),
+                  Step(
+                    isActive: currentStep == 3? true:false,
+                    content: Container(), title: Text("Fin", style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold
+                  ),),)
+                ]
+            ):
+            Container()
+          ],
+        ),
       ),
-    ),
-    Text(
-      'Abonnement 1: Business',
-      style: optionStyle,
-    ),
-    Text(
-      'Abonnement 2: School',
-      style: optionStyle,
-    )
-  ];
+      Text(
+        'Abonnement 1: Business',
+        style: optionStyle,
+      ),
+      Text(
+        'Abonnement 2: School',
+        style: optionStyle,
+      )
+    ];
+  }
 
   List<Widget> facturationOptions = <Widget>[
     Text(
@@ -676,22 +962,23 @@ class _HomePageState extends State<HomePage> {
 
   void _onStepTapped(int index) {
     setState(() {
-      _index = index;
+      currentStep = index;
     });
   }
 
   void _onStepContinue() {
-    if(_index <= 0) {
+    print(currentStep);
+    if(currentStep <= 2) {
       setState(() {
-        _index ++;
+        currentStep ++;
       });
     }
   }
 
   void _onStepCancel() {
-    if(_index > 0) {
+    if(currentStep > 0) {
       setState(() {
-        _index--;
+        currentStep--;
       });
     }
   }
@@ -844,4 +1131,9 @@ class _HomePageState extends State<HomePage> {
       onTap: _onItemTapped,
     );
   }
+
+  List<String> abonnementTypes = [
+    "Vous êtes propriétaire",
+    "Vous êtes locataire"
+  ];
 }
